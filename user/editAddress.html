@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0"/>
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="telephone=no" name="format-detection">
+    <title>收货地址管理</title>
+    <link type="image/x-icon" rel="shortcut icon" href="../images/favicon.ico">
+    <link rel="stylesheet" href="../res/mui/css/mui.min.css"/>
+    <link rel="stylesheet" href="../res/fontAwesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="../css/common.css"/>
+    <link rel="stylesheet" href="../css/user.css"/>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/jquery.form.min.js"></script>
+    <script src="../js/jquery.region.js"></script>
+    <script src="../admin/assets/art-template/template-web.js"></script>
+</head>
+<body>
+<div class="cz_layout bgg">
+    <header class="cz_topBar">
+        <a href="javascript:history.back();" class="icon_back fa fa-arrow-left"></a>
+        <span class="title">收货地址管理</span>
+    </header>
+    <div class="cz_container">
+        <form>
+       
+    </form>
+    </div>
+    <footer class="cz_tabs">
+        <a class="tab_home fa fa-home" href="../index.html"><span>首页</span></a>
+        <a class="tab_cate fa fa-bars" href="../cate.html"><span>分类</span></a>
+        <a class="tab_cart fa fa-shopping-cart" href="../cart.html"><span>购物车</span></a>
+        <a class="tab_user fa fa-user" href="../user/index.html"><span>会员中心</span></a>
+    </footer>
+</div>
+<script src="../res/mui/js/mui.min.js"></script>
+<script type="text/html" id="tpl">
+    <input type="hidden" name='id' value="{{id}}">
+    <div class="form_box">
+            <div class="mui-input-row">
+                <input name="recipients" type="text" placeholder="收货人" value="{{recipients}}">
+            </div>
+            <div class="mui-input-row">
+                <input name="postcode" type="text" placeholder="邮编" value="{{postCode}}">
+            </div>
+            <div class="mui-input-row">
+                <textarea name="addressDetail" id="textarea" rows="5" placeholder="多行文本框">{{addressDetail}}</textarea>
+            </div>
+            <button class="mui-btn mui-btn-primary btn_login">确认</button>
+        </div>
+</script>
+<script>
+    // 获取id
+    var search = location.search.slice(1);
+    console.log(search)
+    // 准备接收处理后的数据
+    var qs = {};
+    // 将search按&拆分
+    var arr = search.split('&');
+    console.log(arr);
+    arr.forEach(function(val){
+        console.log(val);
+        // 将拆分后的数组进行遍历，再以=进行拆分
+        var tmp = val.split('=');
+        console.log(tmp);
+        qs[tmp[0]] = tmp[1];
+        console.log(qs)
+
+        // 根据id查询数据
+        $.ajax({
+            url:'/api/address/queryAddress',
+            type:'get',
+            success:function(info){
+                if(info.error) return location.href = '/user/login.html?url=' + location.href;
+                var lists = info.filter(function(val){
+                    return val.id == qs.id;
+                });
+                var html = template('tpl', lists[0]);
+                $('form').html(html);
+            }
+        })
+    })
+    $('form').ajaxForm({
+        type:"post",
+        url:'/api/address/updateAddress',
+        success:function(info){
+            if(info.error) return location.href = '/user/login.html?url=' + location.href;
+
+            location.href ='/user/address.html'
+        }
+    })
+</script>
+</body>
+</html>
